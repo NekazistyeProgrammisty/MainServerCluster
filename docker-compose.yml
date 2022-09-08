@@ -38,27 +38,5 @@ services:
     ports:
       - 5555:5555
 
-  # nginx:
-  #   build: 
-  #     context: ./nginx
-  #     dockerfile: Dockerfile
-  #   ports: 
-  #     - 80:80
-  #   depends_on:
-  #     - springboot-app
-  #     - pgadmin
-  #   restart: always
-
-  client:
-    stdin_open: true
-    build: ./foodboard
-    volumes:
-      - /app/node_modules
-      - ./foodboard:/app
-    ports:
-      - 3000:3000
-    depends_on:
-      - springboot-app
-
 volumes:
   postgres_data_foodboard:
