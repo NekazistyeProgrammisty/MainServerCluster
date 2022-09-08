@@ -1,0 +1,64 @@
+version: "3"
+services:
+  springboot-app:
+    # image: dubrovinoleg/springboot-app:0.1
+    build: ./backend
+    command: java -jar target/foodboardJar.jar
+    depends_on:
+      - fb_database
+    ports: 
+      - "8081:8081"
+    environment:
+      - SQL_DATABASE=foodboard
+      - SQL_USER=admin
+      - SQL_PASSWORD=admin
+      - SQL_HOST=fb_database
+      - SQL_PORT=5432
+
+  fb_database:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data_foodboard:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=foodboard
+
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - fb_database
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=root@adminfood.ru
+      - PGADMIN_DEFAULT_PASSWORD=foodboard
+      - PGADMIN_LISTEN_ADDRESS=0.0.0.0
+      - PGADMIN_LISTEN_PORT=5555
+    ports:
+      - 5555:5555
+
+  # nginx:
+  #   build: 
+  #     context: ./nginx
+  #     dockerfile: Dockerfile
+  #   ports: 
+  #     - 80:80
+  #   depends_on:
+  #     - springboot-app
+  #     - pgadmin
+  #   restart: always
+
+  client:
+    stdin_open: true
+    build: ./foodboard
+    volumes:
+      - /app/node_modules
+      - ./foodboard:/app
+    ports:
+      - 3000:3000
+    depends_on:
+      - springboot-app
+
+volumes:
+  postgres_data_foodboard:
